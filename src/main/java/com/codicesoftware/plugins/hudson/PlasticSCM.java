@@ -105,16 +105,19 @@ public class PlasticSCM extends SCM {
             @CheckForNull final File changelogFile,
             @CheckForNull final SCMRevisionState baseline) throws IOException, InterruptedException  {
         List<ChangeSet> result = new ArrayList<ChangeSet>();
-
-        for (WorkspaceInfo workspaceInfo : getAllWorkspaces(run.getAction(ParametersAction.class))) {
+        List<WorkspaceInfo> allWorkspaces = getAllWorkspaces(run.getAction(ParametersAction.class));
+        for (WorkspaceInfo workspaceInfo : allWorkspaces) {
             String normalizedWorkspaceName = normalizeWorkspace(
-                workspaceInfo.getWorkspaceName(), run.getParent(), run);
+                    workspaceInfo.getWorkspaceName(), run.getParent(), run);
 
-            FilePath plasticWorkspace = new FilePath(workspace,
-                normalizedWorkspaceName);
-
-            if (!plasticWorkspace.exists())
-                plasticWorkspace.mkdirs();
+            FilePath plasticWorkspace;
+            if (allWorkspaces.size() == 1) {
+                plasticWorkspace = workspace;
+            } else {
+                plasticWorkspace = new FilePath(workspace, normalizedWorkspaceName);
+                if (!plasticWorkspace.exists())
+                    plasticWorkspace.mkdirs();
+            }
 
             Server server = new Server(new PlasticTool(
                 getDescriptor().getCmExecutable(), launcher, listener, plasticWorkspace));
