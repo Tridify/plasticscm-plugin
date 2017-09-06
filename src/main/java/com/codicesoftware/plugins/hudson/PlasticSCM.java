@@ -182,9 +182,15 @@ public class PlasticSCM extends SCM {
         }
 
         Run<?, ?> lastCompletedBuild = project.getLastCompletedBuild();
-        for (WorkspaceInfo workspaceInfo : getAllWorkspaces(project.getAction(ParametersAction.class))) {
-            FilePath plasticWorkspace = new FilePath(workspacePath, normalizeWorkspace(
-                workspaceInfo.getWorkspaceName(), project, lastCompletedBuild));
+        List<WorkspaceInfo> allWorkspaces = getAllWorkspaces(project.getAction(ParametersAction.class));
+        for (WorkspaceInfo workspaceInfo : allWorkspaces) {
+            FilePath plasticWorkspace;
+            if (allWorkspaces.size() == 1) {
+                plasticWorkspace = workspacePath;
+            } else {
+                plasticWorkspace = new FilePath(workspacePath, normalizeWorkspace(
+                        workspaceInfo.getWorkspaceName(), project, lastCompletedBuild));
+            }
 
             String resolvedSelector = replaceParameters(
                     selector, getDefaultParameterValues(project));
